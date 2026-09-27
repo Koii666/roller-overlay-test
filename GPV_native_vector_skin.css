@@ -1,22 +1,24 @@
 /*
-  GPV native vector-stick edit skin
-  ---------------------------------
-  Made to match the stick visualizer from the v5/v6 local overlay while
-  letting GamePad Viewer itself handle controller polling.
+  GPV native stick overlay — matched to the user's current local version.
 
-  IMPORTANT:
-  - Use this as an EDIT CSS skin on the normal DS4 skin.
-  - Keep Stick Curving ENABLED (nocurve=0).
-  - This file is calibrated for Stick Offset = 22 (soffset=22).
-  - Deadzone can be whatever you want (dz=0 for none).
+  Current local visual target:
+  - radius: 45
+  - max vector: 38
+  - line width: 4.2
+  - center dot radius: 0.5
+  - red line/dot
+  - dark well/ring/rim
 
-  Why the line works:
-  GamePad Viewer already writes rotateX/rotateY values to each stick.
-  This CSS turns the stick into a thin 3D "rod" pointing out of the screen.
-  GPV's native rotations project that rod into a 2D line, so the line direction
-  and length follow the actual analog input without any custom JavaScript.
+  This is an EDIT-CSS skin for the classic DS4 GPV skin.
+  Keep stick curving enabled and use soffset=22.
 */
 
+html,
+body {
+  background: transparent !important;
+}
+
+/* Keep GPV's original DS4 controller art and button layout. */
 .ds4 .sticks {
   position: absolute !important;
   width: 361px !important;
@@ -27,6 +29,16 @@
   transform-style: preserve-3d !important;
 }
 
+/*
+  Exact well centers from the local overlay:
+  left  = global (275,355) => local (47,47)
+  right = global (531,355) => local (303,47)
+
+  Canvas target:
+    fill radius = 45
+    ring width = 5
+    subtle rim at radius 42.5
+*/
 .ds4 .sticks::before,
 .ds4 .sticks::after {
   content: "" !important;
@@ -34,21 +46,32 @@
   top: -0.5px !important;
   width: 95px !important;
   height: 95px !important;
-  box-sizing: border-box !important;
   border-radius: 50% !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+
   background:
     radial-gradient(
       circle at center,
-      rgba(242,242,247,.99) 0px,
-      rgba(242,242,247,.99) 1.6px,
-      transparent 1.7px
+      rgba(255,30,30,.99) 0px,
+      rgba(255,30,30,.99) .5px,
+      transparent .6px
     ),
-    rgba(5,6,9,.84) !important;
-  border: 5px solid rgba(18,19,27,.98) !important;
-  box-shadow:
-    inset 0 0 0 1.25px rgba(105,107,122,.72) !important;
-  pointer-events: none !important;
-  z-index: 1 !important;
+    radial-gradient(
+      circle at center,
+      transparent 0px,
+      transparent 41.85px,
+      rgba(105,107,122,.72) 41.9px,
+      rgba(105,107,122,.72) 43.1px,
+      transparent 43.15px
+    ),
+    radial-gradient(
+      circle at center,
+      rgba(5,6,9,.84) 0px,
+      rgba(5,6,9,.84) 42.45px,
+      rgba(18,19,27,.98) 42.5px,
+      rgba(18,19,27,.98) 47.5px
+    ) !important;
 }
 
 .ds4 .sticks::before {
@@ -59,16 +82,24 @@
   left: 255.5px !important;
 }
 
+/*
+  Hide GPV's normal stick cap artwork, but KEEP its native inline
+  rotateX/rotateY transform because that is what drives the vector.
+*/
 .ds4 .stick {
   position: absolute !important;
   width: 1px !important;
   height: 1px !important;
-  background: none !important;
+
+  background: transparent !important;
   background-image: none !important;
   border: 0 !important;
   border-radius: 0 !important;
+
+  /* Keep the pivot fixed at the well center. */
   margin-left: 0 !important;
   margin-top: 0 !important;
+
   transform-origin: 0 0 !important;
   transform-style: preserve-3d !important;
   overflow: visible !important;
@@ -87,6 +118,16 @@
   top: 47px !important;
 }
 
+/*
+  Native-GPV vector.
+
+  GPV applies up to +/-22deg of rotateX / rotateY with soffset=22.
+  A 101.45px rod projects to ~38px at 22deg, matching maxVector:38.
+
+  The line color and width match the current local file:
+    rgba(255,30,30,.97)
+    4.2px
+*/
 .ds4 .stick::before {
   content: "" !important;
   position: absolute !important;
@@ -94,23 +135,35 @@
   top: 0 !important;
   width: 4.2px !important;
   height: 101.45px !important;
-  background: rgba(242,242,247,.97) !important;
+
+  background: rgba(255,30,30,.97) !important;
   border-radius: 999px !important;
+
   transform-origin: 50% 0 !important;
   transform: rotateX(90deg) !important;
   transform-style: preserve-3d !important;
   backface-visibility: visible !important;
+
   pointer-events: none !important;
 }
 
+/* Tiny red fixed-center point, matching centerDotRadius:0.5. */
+.ds4 .stick::after {
+  content: "" !important;
+  position: absolute !important;
+  left: -0.5px !important;
+  top: -0.5px !important;
+  width: 1px !important;
+  height: 1px !important;
+  border-radius: 50% !important;
+  background: rgba(255,30,30,.99) !important;
+  pointer-events: none !important;
+}
+
+/* Never bring back the stock stick-click sprite. */
 .ds4 .stick.pressed,
 .ds4 .stick.pressed.left,
 .ds4 .stick.pressed.right {
-  background: none !important;
-  background-image: none !important;
-}
-
-html,
-body {
   background: transparent !important;
+  background-image: none !important;
 }
